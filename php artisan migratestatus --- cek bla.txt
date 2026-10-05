@@ -1,0 +1,29 @@
+php artisan migrate:status ---> cek Laravel migration 
+
+php artisan make:migration add_role_id_and_employee_number_to_users_table --table=users -->
+
+php artisan make:migrate
+
+====
+$table->foreignId('role_id')
+    ->after('id')
+    ->constrained('roles')
+    ->cascadeOnUpdate()
+    ->restrictOnDelete();
+constrained sama saja dengan:
+FOREIGN KEY (role_id)
+REFERENCES roles(id)
+====
+$table->foreign('role_id')
+                ->references('id')
+                ->on('roles')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+pakai foreign dan bukan foreignId itu karna role_id sudah ada , sehingga tidak menciptakan id baru.
+=====
+php artisan db:seed --class=GsdElementSeeder #untuk ngisi table trntu aja
+=====
+php artisan make:seeder blablabla
+===
+php artisan migrate:fresh --seed
+====

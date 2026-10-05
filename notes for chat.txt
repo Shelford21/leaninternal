@@ -1,0 +1,19 @@
+yo, stop everything. post pone. got a meeting with the superior. and he wants:
+1. we must make buyer table named "Buyer_List" that contain column:
+- id
+- Buyer
+- Abbreviation
+- Brand
+
+2.im adding label_number_quty on table called "articles"
+
+3. about table factories , fyi , factory_name example is : PT.ABCD. and we must add new column called site , the value would be (example) : Quty 1 , Quty 2
+
+4. our hierarchy is :
+ first is factory / site , example Quty 1 , Quty 2
+ second is divison / team , example warehouse , cutting
+ third is department / section , example Sewing Quty 1 , Sewing Quty 2 , Sewing Line B8
+ fourth is Area , Computer stitching area
+
+ok replace all of that as Notes From 31 August 2026 meeting
+

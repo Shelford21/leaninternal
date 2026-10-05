@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Http\Requests\Api;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class UpdateSewingStopFactorRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'factor_name' => 'sometimes|max:150',
+            'code' => 'sometimes|unique:sewing_stop_factors,code,' . $this->route('sewing_stop_factor') . '|max:50',
+            'factor_value' => 'sometimes|numeric|min:0',
+            'description' => 'nullable',
+            'tolerance' => 'nullable',
+            'status' => 'in:active,inactive',
+        ];
+    }
+}
