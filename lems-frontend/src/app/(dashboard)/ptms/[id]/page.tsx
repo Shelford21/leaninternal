@@ -90,10 +90,10 @@ export default function PtmsReportDetailPage({ params }: { params: { id: string 
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Process</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Process Version</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">{report.process?.process_name || "-"}</p>
+            <p className="text-lg font-semibold">{report.process_version ? `v${report.process_version.version_number}` : "-"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -101,7 +101,7 @@ export default function PtmsReportDetailPage({ params }: { params: { id: string 
             <CardTitle className="text-sm font-medium text-muted-foreground">Report Date</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">{report.report_date ? new Date(report.report_date).toLocaleDateString() : "-"}</p>
+            <p className="text-lg font-semibold">{report.created_at ? new Date(report.created_at).toLocaleDateString() : "-"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -117,26 +117,26 @@ export default function PtmsReportDetailPage({ params }: { params: { id: string 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Observed Time</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Machining TMU</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{report.observed_time?.toFixed(2) || "-"}</p>
+            <p className="text-2xl font-bold">{report.machining_tmu != null ? Number(report.machining_tmu).toFixed(2) : "-"}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Rating Factor</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Handling TMU</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{report.rating_factor?.toFixed(2) || "-"}</p>
+            <p className="text-2xl font-bold">{report.handling_tmu != null ? Number(report.handling_tmu).toFixed(2) : "-"}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Basic Time</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total TMU</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{report.basic_time?.toFixed(2) || "-"}</p>
+            <p className="text-2xl font-bold">{report.total_tmu != null ? Number(report.total_tmu).toFixed(2) : "-"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -144,26 +144,26 @@ export default function PtmsReportDetailPage({ params }: { params: { id: string 
             <CardTitle className="text-sm font-medium text-muted-foreground">SMV</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{report.smv?.toFixed(2) || "-"}</p>
+            <p className="text-2xl font-bold">{report.smv != null ? Number(report.smv).toFixed(2) : "-"}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Efficiency</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">BMS</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">{report.efficiency ? `${report.efficiency}%` : "-"}</p>
+            <p className="text-2xl font-bold">{report.bms != null ? Number(report.bms).toFixed(2) : "-"}</p>
           </CardContent>
         </Card>
       </div>
 
-      {report.remarks && (
+      {report.remark && (
         <Card>
           <CardHeader>
             <CardTitle>Remarks</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{report.remarks}</p>
+            <p className="text-muted-foreground">{report.remark}</p>
           </CardContent>
         </Card>
       )}

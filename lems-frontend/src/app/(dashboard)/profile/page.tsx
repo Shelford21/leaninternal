@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/store/auth-store";
-import { useChangePassword } from "@/hooks/use-users";
+import { useChangeMyPassword } from "@/hooks/use-users";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, User, Mail, Shield, KeyRound } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Loader2, User, Hash, Shield, KeyRound } from "lucide-react";
 
 const passwordSchema = z.object({
   current_password: z.string().min(1, "Current password is required"),
@@ -28,18 +27,16 @@ type PasswordFormType = z.infer<typeof passwordSchema>;
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
-  const { toast } = useToast();
-  const changePasswordMutation = useChangePassword();
+  const changePasswordMutation = useChangeMyPassword();
 
   const form = useForm<PasswordFormType>({ resolver: zodResolver(passwordSchema) });
 
   const onSubmit = (formData: PasswordFormType) => {
     if (!user) return;
     changePasswordMutation.mutate(
-      { id: user.id, data: formData },
+      formData,
       {
         onSuccess: () => {
-          toast({ title: "Success", description: "Password changed successfully" });
           form.reset();
         },
       }
@@ -72,17 +69,17 @@ export default function ProfilePage() {
             <Separator />
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground" />
+                <Hash className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">{user.email}</p>
+                  <p className="text-sm text-muted-foreground">Employee Number</p>
+                  <p className="font-medium">{user.employee_number}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Shield className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-muted-foreground">Role</p>
-                  <Badge variant="outline">{user.role?.name || "N/A"}</Badge>
+                  <Badge variant="outline">{user.role?.role_name || "N/A"}</Badge>
                 </div>
               </div>
             </div>

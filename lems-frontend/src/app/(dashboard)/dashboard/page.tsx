@@ -57,7 +57,7 @@ export default function DashboardPage() {
           />
           <StatCard
             title="Production Lines"
-            value={stats?.lines ?? 0}
+            value={stats?.production_lines ?? 0}
             icon={GitBranch}
             description="Active lines"
           />

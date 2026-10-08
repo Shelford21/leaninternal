@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGsdElements, useCreateGsdElement, useUpdateGsdElement, useDeleteGsdElement } from "@/hooks/use-gsd-elements";
 import { useAllGsdCategories } from "@/hooks/use-gsd-categories";
+import { useAuthStore } from "@/store/auth-store";
 import { DataTable, Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -32,6 +33,7 @@ const schema = z.object({
 type FormType = z.infer<typeof schema>;
 
 export default function GsdElementsPage() {
+  const { token } = useAuthStore();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("id");
@@ -78,7 +80,7 @@ export default function GsdElementsPage() {
     <div className="space-y-6">
       <PageHeader title="GSD Elements" description="Manage GSD elements" action={{ label: "Add Element", onClick: openCreate }} />
 
-      <DataTable columns={columns} data={data?.data || []} isLoading={isLoading} searchPlaceholder="Search elements..." searchValue={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} onEdit={openEdit} onDelete={openDelete} currentPage={data?.current_page || 1} totalPages={data?.last_page || 1} onPageChange={setPage} totalItems={data?.total || 0} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
+      <DataTable columns={columns} data={data?.data || []} isLoading={isLoading} searchPlaceholder="Search elements..." searchValue={search} onSearchChange={(v) => { setSearch(v); setPage(1); }} autocompleteEndpoint="/api/master/gsd-elements/search" authToken={token ?? undefined} onEdit={openEdit} onDelete={openDelete} currentPage={data?.current_page || 1} totalPages={data?.last_page || 1} onPageChange={setPage} totalItems={data?.total || 0} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

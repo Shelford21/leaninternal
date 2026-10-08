@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
   Table,
   TableBody,
@@ -59,6 +59,18 @@ interface DataTableProps<T> {
   onSort?: (key: string) => void;
   emptyMessage?: string;
   actions?: boolean;
+  /** Per-row gate for the Edit action. Return false to hide. */
+  canEdit?: (item: T) => boolean;
+  /** Per-row gate for the Delete action. Return false to hide. */
+  canDelete?: (item: T) => boolean;
+  /** Per-row gate for custom actions. Return false to hide. */
+  canAct?: (item: T) => boolean;
+  /** API endpoint for autocomplete search. Called with ?q= parameter. */
+  autocompleteEndpoint?: string;
+  /** Authorization header value for autocomplete requests. */
+  authToken?: string;
+  /** Called when an autocomplete suggestion is selected. */
+  onAutocompleteSelect?: (item: { id: number; label: string; description?: string }) => void;
 }
 
 export function DataTable<T extends { id: number }>({
@@ -82,7 +94,40 @@ export function DataTable<T extends { id: number }>({
   onSort,
   emptyMessage = "No data found.",
   actions = true,
+  canEdit,
+  canDelete,
+  canAct,
+  autocompleteEndpoint,
+  authToken,
+  onAutocompleteSelect,
 }: DataTableProps<T>) {
+  // Autocomplete state
+  const [acItems, setAcItems] = useState<{ id: number; label: string; description?: string }[]>([]);
+  const [acOpen, setAcOpen] = useState(false);
+  const acTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleSearchWithAc = useCallback(
+    (v: string) => {
+      onSearchChange?.(v);
+      if (!autocompleteEndpoint) return;
+      if (acTimer.current) clearTimeout(acTimer.current);
+      const q = v.trim();
+      if (q.length < 1) { setAcItems([]); setAcOpen(false); return; }
+      acTimer.current = setTimeout(async () => {
+        try {
+          const res = await fetch(`${autocompleteEndpoint}?q=${encodeURIComponent(q)}`, {
+            headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
+          });
+          if (!res.ok) return;
+          const body = await res.json().catch(() => null);
+          const results: { id: number; label: string; description?: string }[] = Array.isArray(body?.data) ? body.data : Array.isArray(body) ? body : [];
+          setAcItems(results);
+          setAcOpen(results.length > 0);
+        } catch { /* ignore */ }
+      }, 300);
+    },
+    [onSearchChange, autocompleteEndpoint, authToken],
+  );
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -133,15 +178,39 @@ export function DataTable<T extends { id: number }>({
             <Input
               placeholder={searchPlaceholder}
               value={searchValue}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={(e) => handleSearchWithAc(e.target.value)}
+              onBlur={() => setTimeout(() => setAcOpen(false), 150)}
+              onFocus={() => acItems.length > 0 && setAcOpen(true)}
+              autoComplete="off"
               className="pl-8"
             />
+            {acOpen && acItems.length > 0 && (
+              <div className="absolute left-0 top-full mt-1 z-50 w-full max-h-60 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 shadow-lg">
+                {acItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="cursor-pointer px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-slate-600"
+                    onMouseDown={() => {
+                      if (onAutocompleteSelect) {
+                        onAutocompleteSelect(item);
+                      } else {
+                        onSearchChange(item.label);
+                      }
+                      setAcOpen(false);
+                    }}
+                  >
+                    <div className="font-medium text-slate-800 dark:text-slate-200">{item.label}</div>
+                    {item.description && <div className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.description}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -211,14 +280,14 @@ export function DataTable<T extends { id: number }>({
                               View
                             </DropdownMenuItem>
                           )}
-                          {onEdit && (
+                          {onEdit && (!canEdit || canEdit(item)) && (
                             <DropdownMenuItem onClick={() => onEdit(item)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
                           )}
-                          {customActions && customActions(item)}
-                          {onDelete && (
+                          {customActions && (!canAct || canAct(item)) && customActions(item)}
+                          {onDelete && (!canDelete || canDelete(item)) && (
                             <DropdownMenuItem
                               onClick={() => onDelete(item)}
                               className="text-destructive"

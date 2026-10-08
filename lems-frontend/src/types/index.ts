@@ -36,12 +36,22 @@ export interface Department {
   updated_at?: string;
 }
 
+export interface Division {
+  id: number;
+  division: string;
+  description?: string;
+  status: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface ProductionLine {
   id: number;
-  department_id: number;
+  division_id: number;
   line_name: string;
   description?: string;
-  department?: Department;
+  status: string;
+  division?: Division;
   created_at?: string;
   updated_at?: string;
 }
@@ -216,12 +226,20 @@ export interface LoginResponse {
 export interface DashboardStats {
   factories: number;
   departments: number;
-  lines: number;
+  production_lines: number;
   articles: number;
   operators: number;
+  gsd_categories: number;
+  gsd_elements: number;
+  mtm_elements: number;
+  sewing_factors: number;
+  sewing_stop_factors: number;
   processes: number;
+  process_versions: number;
   ptms_reports: number;
-  average_smv: number;
+  roles: number;
+  users: number;
+  average_smv: number | null;
 }
 
 export interface QueryParams {

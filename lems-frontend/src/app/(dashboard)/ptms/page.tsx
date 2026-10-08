@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePtmsReports, useDeletePtmsReport } from "@/hooks/use-ptms-reports";
+import { useAuthStore } from "@/store/auth-store";
 import { DataTable, Column } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -12,6 +13,7 @@ import { Eye, Trash2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function PtmsReportsPage() {
+  const { token } = useAuthStore();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -34,7 +36,7 @@ export default function PtmsReportsPage() {
     { key: "department", header: "Department", render: (item) => item.department?.department_name || "-" },
     { key: "production_line", header: "Line", render: (item) => item.production_line?.line_name || "-" },
     { key: "article", header: "Article", render: (item) => item.article?.article_name || "-" },
-    { key: "smv", header: "SMV", sortable: true, render: (item) => item.smv?.toFixed(2) || "-" },
+    { key: "smv", header: "SMV", sortable: true, render: (item) => item.smv != null ? Number(item.smv).toFixed(2) : "-" },
     { key: "status", header: "Status", sortable: true, render: (item) => (
       <Badge variant={item.status === "completed" ? "default" : item.status === "in_progress" ? "secondary" : "outline"}>
         {item.status}

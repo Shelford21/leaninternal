@@ -22,7 +22,8 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
   username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email"),
+  // Required by Laravel's StoreUserRequest (unique|max:20).
+  employee_number: z.string().min(1, "Employee number is required"),
   password: z.string().min(6, "Password must be at least 6 characters").optional(),
   role_id: z.number().min(1, "Role is required"),
 });
@@ -38,15 +39,15 @@ const passwordSchema = z.object({
 type UserFormType = z.infer<typeof userSchema>;
 type PasswordFormType = z.infer<typeof passwordSchema>;
 
+// Real rows from the existing `roles` table (developer/admin/viewer).
 const ROLES = [
-  { id: 1, name: "admin" },
-  { id: 2, name: "manager" },
-  { id: 3, name: "operator" },
-  { id: 4, name: "viewer" },
+  { id: 27, name: "developer" },
+  { id: 28, name: "admin" },
+  { id: 29, name: "viewer" },
 ];
 
 export default function CredentialsPage() {
-  const { user: currentUser } = useAuthStore();
+  const { user: currentUser, token } = useAuthStore();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("id");
@@ -67,13 +68,13 @@ export default function CredentialsPage() {
 
   const openCreate = () => {
     setSelected(null);
-    form.reset({ name: "", username: "", email: "", password: "", role_id: 3 });
+    form.reset({ name: "", username: "", employee_number: "", password: "", role_id: 29 });
     setDialogOpen(true);
   };
 
   const openEdit = (item: User) => {
     setSelected(item);
-    form.reset({ name: item.name, username: item.username, email: item.email, role_id: item.role_id || 3 });
+    form.reset({ name: item.name, username: item.username, employee_number: item.employee_number || "", password: "", role_id: item.role_id || 29 });
     setDialogOpen(true);
   };
 
@@ -86,7 +87,18 @@ export default function CredentialsPage() {
   };
 
   const onSubmit = (formData: UserFormType) => {
-    const payload = selected ? { ...formData, password: formData.password || undefined } : { ...formData, password: formData.password || "" };
+    // Laravel's `confirmed` rule requires password_confirmation next to password.
+    const payload = selected
+      ? {
+          ...formData,
+          password: formData.password || undefined,
+          password_confirmation: formData.password || undefined,
+        }
+      : {
+          ...formData,
+          password: formData.password || "",
+          password_confirmation: formData.password || "",
+        };
     if (selected) {
       updateMutation.mutate({ id: selected.id, data: payload }, { onSuccess: () => setDialogOpen(false) });
     } else {
@@ -108,13 +120,12 @@ export default function CredentialsPage() {
   const columns: Column<User>[] = [
     { key: "name", header: "Name", sortable: true },
     { key: "username", header: "Username", sortable: true },
-    { key: "email", header: "Email" },
-    { key: "role", header: "Role", render: (item) => <Badge variant="outline">{item.role?.name || "N/A"}</Badge> },
+    { key: "role", header: "Role", render: (item) => <Badge variant="outline">{item.role?.role_name || "N/A"}</Badge> },
   ];
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
-  if (currentUser?.role?.name !== "admin") {
+  if (!["developer", "admin"].includes(currentUser?.role?.role_name ?? "")) {
     return (
       <div className="space-y-6">
         <PageHeader title="Access Denied" description="You do not have permission to manage users." />
@@ -133,6 +144,8 @@ export default function CredentialsPage() {
         searchPlaceholder="Search users..."
         searchValue={search}
         onSearchChange={(v) => { setSearch(v); setPage(1); }}
+        autocompleteEndpoint="/api/master/users/search"
+        authToken={token ?? undefined}
         onEdit={openEdit}
         onDelete={openDelete}
         customActions={(item) => (
@@ -141,6 +154,22 @@ export default function CredentialsPage() {
             Change Password
           </DropdownMenuItem>
         )}
+        /* Admin cannot edit/delete/change-password developer accounts */
+        canEdit={(item) => {
+          const roleName = item.role?.role_name ?? "";
+          if (currentUser?.role?.role_name === "admin" && roleName === "developer") return false;
+          return true;
+        }}
+        canDelete={(item) => {
+          const roleName = item.role?.role_name ?? "";
+          if (currentUser?.role?.role_name === "admin" && roleName === "developer") return false;
+          return true;
+        }}
+        canAct={(item) => {
+          const roleName = item.role?.role_name ?? "";
+          if (currentUser?.role?.role_name === "admin" && roleName === "developer") return false;
+          return true;
+        }}
         currentPage={data?.current_page || 1}
         totalPages={data?.last_page || 1}
         onPageChange={setPage}
@@ -166,9 +195,9 @@ export default function CredentialsPage() {
               {form.formState.errors.username && <p className="text-sm text-destructive">{form.formState.errors.username.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label>Email</Label>
-              <Input type="email" {...form.register("email")} placeholder="Email address" />
-              {form.formState.errors.email && <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>}
+              <Label>Employee Number</Label>
+              <Input {...form.register("employee_number")} placeholder="Employee number" />
+              {form.formState.errors.employee_number && <p className="text-sm text-destructive">{form.formState.errors.employee_number.message}</p>}
             </div>
             <div className="space-y-2">
               <Label>Password {selected && "(leave blank to keep current)"}</Label>

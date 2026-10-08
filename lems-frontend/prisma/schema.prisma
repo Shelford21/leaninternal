@@ -1,0 +1,703 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activity_logs {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt?   @db.UnsignedBigInt
+  username   String    @db.VarChar(100)
+  activity   String    @db.VarChar(500)
+  module     String?   @db.VarChar(100)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  users      users?    @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "activity_logs_user_id_foreign")
+
+  @@index([user_id], map: "activity_logs_user_id_foreign")
+}
+
+model articles {
+  id                     BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  article_name           String                   @db.VarChar(150)
+  label_number           String                   @unique(map: "articles_label_number_unique") @db.VarChar(100)
+  label_number_quty      String?                  @unique(map: "articles_label_number_quty_unique") @db.VarChar(100)
+  destination            String                   @db.VarChar(100)
+  description            String?                  @db.VarChar(255)
+  photo_path             String?                  @db.VarChar(255)
+  status                 articles_status          @default(active)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  line_balancing_reports line_balancing_reports[]
+  ptms_reports           ptms_reports[]
+}
+
+model components_panels {
+  id              BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  component_panel String                   @db.VarChar(200)
+  description     String?                  @db.VarChar(255)
+  status          components_panels_status @default(active)
+  created_at      DateTime?                @db.Timestamp(0)
+  updated_at      DateTime?                @db.Timestamp(0)
+}
+
+model departments {
+  id              BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id      BigInt             @db.UnsignedBigInt
+  department_name String             @db.VarChar(100)
+  desription      String?            @db.VarChar(255)
+  status          departments_status @default(active)
+  created_at      DateTime?          @db.Timestamp(0)
+  updated_at      DateTime?          @db.Timestamp(0)
+  factories       factories          @relation(fields: [factory_id], references: [id], map: "departments_factory_id_foreign")
+  operators       operators[]
+  ptms_reports    ptms_reports[]
+
+  @@index([factory_id], map: "departments_factory_id_foreign")
+}
+
+model destinations {
+  id          BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  destination String              @db.VarChar(100)
+  description String?             @db.VarChar(255)
+  status      destinations_status @default(active)
+  created_at  DateTime?           @db.Timestamp(0)
+  updated_at  DateTime?           @db.Timestamp(0)
+}
+
+model divisions {
+  id               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  division         String             @db.VarChar(100)
+  description      String?            @db.VarChar(255)
+  status           divisions_status   @default(active)
+  created_at       DateTime?          @db.Timestamp(0)
+  updated_at       DateTime?          @db.Timestamp(0)
+  operators        operators[]
+  production_lines production_lines[]
+}
+
+model educational_levels {
+  id          BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  level       String                    @unique(map: "educational_levels_level_unique") @db.VarChar(100)
+  description String?                   @db.VarChar(255)
+  status      educational_levels_status @default(active)
+  created_at  DateTime?                 @db.Timestamp(0)
+  updated_at  DateTime?                 @db.Timestamp(0)
+  operators   operators[]
+}
+
+model factories {
+  id                     BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_name           String                   @db.VarChar(100)
+  description            String?                  @db.VarChar(255)
+  status                 factories_status         @default(active)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  departments            departments[]
+  line_balancing_reports line_balancing_reports[]
+  operators              operators[]
+  ptms_reports           ptms_reports[]
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model failure_modes {
+  id           BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  failure_mode String               @db.VarChar(200)
+  description  String?              @db.VarChar(255)
+  status       failure_modes_status @default(active)
+  created_at   DateTime?            @db.Timestamp(0)
+  updated_at   DateTime?            @db.Timestamp(0)
+}
+
+model genders {
+  id          BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  gender      String         @unique(map: "genders_gender_unique") @db.VarChar(50)
+  description String?        @db.VarChar(255)
+  status      genders_status @default(active)
+  created_at  DateTime?      @db.Timestamp(0)
+  updated_at  DateTime?      @db.Timestamp(0)
+}
+
+model gsd_categories {
+  id               BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  category_name    String                @unique(map: "gsd_categories_category_name_unique") @db.VarChar(150)
+  description      String?               @db.VarChar(255)
+  status           gsd_categories_status @default(active)
+  created_at       DateTime?             @db.Timestamp(0)
+  updated_at       DateTime?             @db.Timestamp(0)
+  gsd_elements     gsd_elements[]
+  process_versions process_versions[]
+}
+
+model gsd_elements {
+  id                           BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  gsd_category_id              BigInt                         @db.UnsignedBigInt
+  element_name                 String                         @db.VarChar(200)
+  description                  String?                        @db.VarChar(255)
+  code                         String                         @db.VarChar(50)
+  tmu                          Decimal                        @db.Decimal(10, 2)
+  seconds                      Decimal                        @db.Decimal(10, 2)
+  motion_sequence              String?                        @db.VarChar(100)
+  status                       gsd_elements_status            @default(active)
+  created_at                   DateTime?                      @db.Timestamp(0)
+  updated_at                   DateTime?                      @db.Timestamp(0)
+  gsd_categories               gsd_categories                 @relation(fields: [gsd_category_id], references: [id], map: "gsd_elements_gsd_category_id_foreign")
+  process_version_gsd_elements process_version_gsd_elements[]
+  process_versions             process_versions[]
+
+  @@index([gsd_category_id], map: "gsd_elements_gsd_category_id_foreign")
+}
+
+model line_balancing_report_rows {
+  id                       BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  line_balancing_report_id BigInt                 @db.UnsignedBigInt
+  row_number               Int                    @default(1)
+  machine_type_id          BigInt?                @db.UnsignedBigInt
+  process                  String?                @db.VarChar(150)
+  name                     String?                @db.VarChar(150)
+  employee_id              BigInt?                @db.UnsignedBigInt
+  joint_process            String?                @db.VarChar(150)
+  operator                 Int                    @default(1)
+  ct_1                     Decimal?               @db.Decimal(10, 2)
+  ct_2                     Decimal?               @db.Decimal(10, 2)
+  ct_3                     Decimal?               @db.Decimal(10, 2)
+  ct_4                     Decimal?               @db.Decimal(10, 2)
+  ct_5                     Decimal?               @db.Decimal(10, 2)
+  created_at               DateTime?              @db.Timestamp(0)
+  updated_at               DateTime?              @db.Timestamp(0)
+  operators                operators?             @relation(fields: [employee_id], references: [id], onUpdate: Restrict, map: "line_balancing_report_rows_employee_id_foreign")
+  line_balancing_reports   line_balancing_reports @relation(fields: [line_balancing_report_id], references: [id], onDelete: Cascade, map: "line_balancing_report_rows_line_balancing_report_id_foreign")
+  machine_types            machine_types?         @relation(fields: [machine_type_id], references: [id], map: "line_balancing_report_rows_machine_type_id_foreign")
+
+  @@index([employee_id], map: "line_balancing_report_rows_employee_id_foreign")
+  @@index([line_balancing_report_id], map: "line_balancing_report_rows_line_balancing_report_id_foreign")
+  @@index([machine_type_id], map: "line_balancing_report_rows_machine_type_id_foreign")
+}
+
+model line_balancing_reports {
+  id                         BigInt                        @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id                 BigInt                        @db.UnsignedBigInt
+  article_id                 BigInt                        @db.UnsignedBigInt
+  line_id                    BigInt                        @db.UnsignedBigInt
+  report_name                String                        @db.VarChar(150)
+  target_output_per_hour     Int                           @default(0)
+  output_actual              Int?
+  working_hours_per_day      Decimal                       @default(8.00) @db.Decimal(5, 2)
+  allowance_percent          Decimal                       @default(15.00) @db.Decimal(5, 2)
+  update_date                DateTime?                     @db.Date
+  status                     line_balancing_reports_status @default(active)
+  created_by                 BigInt                        @db.UnsignedBigInt
+  created_at                 DateTime?                     @db.Timestamp(0)
+  updated_at                 DateTime?                     @db.Timestamp(0)
+  line_balancing_report_rows line_balancing_report_rows[]
+  articles                   articles                      @relation(fields: [article_id], references: [id], map: "line_balancing_reports_article_id_foreign")
+  users                      users                         @relation(fields: [created_by], references: [id], map: "line_balancing_reports_created_by_foreign")
+  factories                  factories                     @relation(fields: [factory_id], references: [id], map: "line_balancing_reports_factory_id_foreign")
+  production_lines           production_lines              @relation(fields: [line_id], references: [id], map: "line_balancing_reports_line_id_foreign")
+
+  @@index([article_id], map: "line_balancing_reports_article_id_foreign")
+  @@index([created_by], map: "line_balancing_reports_created_by_foreign")
+  @@index([factory_id], map: "line_balancing_reports_factory_id_foreign")
+  @@index([line_id], map: "line_balancing_reports_line_id_foreign")
+}
+
+model login_logs {
+  id         BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt              @db.UnsignedBigInt
+  username   String              @db.VarChar(100)
+  activity   login_logs_activity
+  created_at DateTime?           @db.Timestamp(0)
+  updated_at DateTime?           @db.Timestamp(0)
+  users      users               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "login_logs_user_id_foreign")
+
+  @@index([user_id], map: "login_logs_user_id_foreign")
+}
+
+model machine_numbers {
+  id             BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  machine_number String                 @db.VarChar(50)
+  description    String?                @db.VarChar(255)
+  status         machine_numbers_status @default(active)
+  created_at     DateTime?              @db.Timestamp(0)
+  updated_at     DateTime?              @db.Timestamp(0)
+}
+
+model machine_types {
+  id                         BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  machine_type               String                       @db.VarChar(100)
+  description                String?                      @db.VarChar(255)
+  status                     machine_types_status         @default(active)
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  line_balancing_report_rows line_balancing_report_rows[]
+}
+
+model mechanics {
+  id           BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  nik_karyawan String?          @unique(map: "mechanics_nik_karyawan_unique") @db.VarChar(50)
+  mechanic     String           @db.VarChar(100)
+  description  String?          @db.VarChar(255)
+  status       mechanics_status @default(active)
+  created_at   DateTime?        @db.Timestamp(0)
+  updated_at   DateTime?        @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model mtm_elements {
+  id           BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  element_name String              @db.VarChar(200)
+  description  String?             @db.VarChar(255)
+  code         String              @db.VarChar(50)
+  tmu          Decimal             @db.Decimal(10, 2)
+  seconds      Decimal             @db.Decimal(10, 2)
+  status       mtm_elements_status @default(active)
+  created_at   DateTime?           @db.Timestamp(0)
+  updated_at   DateTime?           @db.Timestamp(0)
+}
+
+model operators {
+  id                         BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  employee_number            String                       @unique(map: "operators_employee_number_unique") @db.VarChar(20)
+  nik_karyawan               String?                      @unique(map: "operators_nik_karyawan_unique") @db.VarChar(50)
+  operator_name              String                       @db.VarChar(100)
+  gender                     String?                      @db.VarChar(30)
+  role                       String?                      @db.VarChar(100)
+  photo_path                 String?                      @db.VarChar(255)
+  factory_id                 BigInt?                      @db.UnsignedBigInt
+  department_id              BigInt?                      @db.UnsignedBigInt
+  division_id                BigInt?                      @db.UnsignedBigInt
+  section_id                 BigInt?                      @db.UnsignedBigInt
+  line_id                    BigInt?                      @db.UnsignedBigInt
+  start_date                 DateTime?                    @db.Date
+  date_of_birth              DateTime?                    @db.Date
+  status                     operators_status             @default(active)
+  status_pkwtt_id            BigInt?                      @db.UnsignedBigInt
+  educational_level_id       BigInt?                      @db.UnsignedBigInt
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  line_balancing_report_rows line_balancing_report_rows[]
+  departments                departments?                 @relation(fields: [department_id], references: [id], onUpdate: Restrict, map: "operators_department_id_foreign")
+  divisions                  divisions?                   @relation(fields: [division_id], references: [id], onUpdate: Restrict, map: "operators_division_id_foreign")
+  educational_levels         educational_levels?          @relation(fields: [educational_level_id], references: [id], onUpdate: Restrict, map: "operators_educational_level_id_foreign")
+  factories                  factories?                   @relation(fields: [factory_id], references: [id], onUpdate: Restrict, map: "operators_factory_id_foreign")
+  production_lines           production_lines?            @relation(fields: [line_id], references: [id], onUpdate: Restrict, map: "operators_line_id_foreign")
+  sections                   sections?                    @relation(fields: [section_id], references: [id], onUpdate: Restrict, map: "operators_section_id_foreign")
+  status_pkwtt               status_pkwtt?                @relation(fields: [status_pkwtt_id], references: [id], onUpdate: Restrict, map: "operators_status_pkwtt_id_foreign")
+  ptms_reports               ptms_reports[]
+
+  @@index([department_id], map: "operators_department_id_foreign")
+  @@index([division_id], map: "operators_division_id_foreign")
+  @@index([educational_level_id], map: "operators_educational_level_id_foreign")
+  @@index([factory_id], map: "operators_factory_id_foreign")
+  @@index([line_id], map: "operators_line_id_foreign")
+  @@index([section_id], map: "operators_section_id_foreign")
+  @@index([status_pkwtt_id], map: "operators_status_pkwtt_id_foreign")
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model process_version_gsd_elements {
+  id                 BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  process_version_id BigInt           @db.UnsignedBigInt
+  gsd_element_id     BigInt           @db.UnsignedBigInt
+  created_at         DateTime?        @db.Timestamp(0)
+  updated_at         DateTime?        @db.Timestamp(0)
+  gsd_elements       gsd_elements     @relation(fields: [gsd_element_id], references: [id], map: "process_version_gsd_elements_gsd_element_id_foreign")
+  process_versions   process_versions @relation(fields: [process_version_id], references: [id], onDelete: Cascade, map: "process_version_gsd_elements_process_version_id_foreign")
+
+  @@unique([process_version_id, gsd_element_id], map: "process_version_gsd_elements_unique")
+  @@index([gsd_element_id], map: "process_version_gsd_elements_gsd_element_id_foreign")
+}
+
+model process_versions {
+  id                           BigInt                         @id @default(autoincrement()) @db.UnsignedBigInt
+  process_id                   BigInt                         @db.UnsignedBigInt
+  version_number               Int                            @db.UnsignedInt
+  notes                        String?                        @db.VarChar(255)
+  status                       process_versions_status        @default(draft)
+  created_by                   BigInt                         @db.UnsignedBigInt
+  gsd_category_id              BigInt?                        @db.UnsignedBigInt
+  gsd_element_id               BigInt?                        @db.UnsignedBigInt
+  created_at                   DateTime?                      @db.Timestamp(0)
+  updated_at                   DateTime?                      @db.Timestamp(0)
+  process_version_gsd_elements process_version_gsd_elements[]
+  users                        users                          @relation(fields: [created_by], references: [id], map: "process_versions_created_by_foreign")
+  gsd_categories               gsd_categories?                @relation(fields: [gsd_category_id], references: [id], map: "process_versions_gsd_category_id_foreign")
+  gsd_elements                 gsd_elements?                  @relation(fields: [gsd_element_id], references: [id], map: "process_versions_gsd_element_id_foreign")
+  processes                    processes                      @relation(fields: [process_id], references: [id], map: "process_versions_process_id_foreign")
+  ptms_reports                 ptms_reports[]
+
+  @@unique([process_id, version_number], map: "process_versions_process_version_unique")
+  @@index([created_by], map: "process_versions_created_by_foreign")
+  @@index([gsd_category_id], map: "process_versions_gsd_category_id_foreign")
+  @@index([gsd_element_id], map: "process_versions_gsd_element_id_foreign")
+}
+
+model processes {
+  id               BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  process_name     String             @unique(map: "processes_process_name_unique") @db.VarChar(200)
+  description      String?            @db.VarChar(255)
+  status           processes_status   @default(active)
+  created_at       DateTime?          @db.Timestamp(0)
+  updated_at       DateTime?          @db.Timestamp(0)
+  process_versions process_versions[]
+}
+
+model production_lines {
+  id                     BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  division_id            BigInt                   @db.UnsignedBigInt
+  line_name              String                   @db.VarChar(100)
+  description            String?                  @db.VarChar(255)
+  status                 production_lines_status  @default(active)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  line_balancing_reports line_balancing_reports[]
+  operators              operators[]
+  divisions              divisions                @relation(fields: [division_id], references: [id], map: "production_lines_division_id_foreign")
+  ptms_reports           ptms_reports[]
+
+  @@index([division_id], map: "production_lines_division_id_foreign")
+}
+
+model production_roles {
+  id              BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  production_role String                  @unique(map: "production_roles_production_role_unique") @db.VarChar(100)
+  description     String?                 @db.VarChar(255)
+  status          production_roles_status @default(active)
+  created_at      DateTime?               @db.Timestamp(0)
+  updated_at      DateTime?               @db.Timestamp(0)
+}
+
+model ptms_reports {
+  id                    BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  report_number         String              @unique(map: "ptms_reports_report_number_unique") @db.VarChar(50)
+  article_id            BigInt              @db.UnsignedBigInt
+  process_version_id    BigInt              @db.UnsignedBigInt
+  operator_id           BigInt              @db.UnsignedBigInt
+  factory_id            BigInt              @db.UnsignedBigInt
+  department_id         BigInt              @db.UnsignedBigInt
+  line_id               BigInt              @db.UnsignedBigInt
+  created_by            BigInt              @db.UnsignedBigInt
+  machine_name          String?             @db.VarChar(150)
+  feed_type             String?             @db.VarChar(100)
+  rpm                   Decimal?            @db.Decimal(10, 2)
+  stitch_per_cm         Decimal?            @db.Decimal(10, 2)
+  seam_width            Decimal?            @db.Decimal(10, 2)
+  machine_delay_percent Decimal             @default(0.00) @db.Decimal(10, 2)
+  contingency_percent   Decimal             @default(0.00) @db.Decimal(10, 2)
+  ra_percent            Decimal             @default(0.00) @db.Decimal(10, 2)
+  machining_tmu         Decimal             @default(0.00) @db.Decimal(10, 2)
+  handling_tmu          Decimal             @default(0.00) @db.Decimal(10, 2)
+  bundle_tmu            Decimal             @default(0.00) @db.Decimal(10, 2)
+  total_tmu             Decimal             @default(0.00) @db.Decimal(10, 2)
+  bms                   Decimal             @default(0.00) @db.Decimal(10, 2)
+  smv                   Decimal             @default(0.00) @db.Decimal(10, 2)
+  status                ptms_reports_status @default(draft)
+  created_at            DateTime?           @db.Timestamp(0)
+  updated_at            DateTime?           @db.Timestamp(0)
+  articles              articles            @relation(fields: [article_id], references: [id], map: "ptms_reports_article_id_foreign")
+  users                 users               @relation(fields: [created_by], references: [id], map: "ptms_reports_created_by_foreign")
+  departments           departments         @relation(fields: [department_id], references: [id], map: "ptms_reports_department_id_foreign")
+  factories             factories           @relation(fields: [factory_id], references: [id], map: "ptms_reports_factory_id_foreign")
+  production_lines      production_lines    @relation(fields: [line_id], references: [id], map: "ptms_reports_line_id_foreign")
+  operators             operators           @relation(fields: [operator_id], references: [id], map: "ptms_reports_operator_id_foreign")
+  process_versions      process_versions    @relation(fields: [process_version_id], references: [id], map: "ptms_reports_process_version_id_foreign")
+
+  @@index([article_id], map: "ptms_reports_article_id_foreign")
+  @@index([created_by], map: "ptms_reports_created_by_foreign")
+  @@index([department_id], map: "ptms_reports_department_id_foreign")
+  @@index([factory_id], map: "ptms_reports_factory_id_foreign")
+  @@index([line_id], map: "ptms_reports_line_id_foreign")
+  @@index([operator_id], map: "ptms_reports_operator_id_foreign")
+  @@index([process_version_id], map: "ptms_reports_process_version_id_foreign")
+}
+
+model roles {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  role_name   String    @unique(map: "roles_role_name_unique") @db.VarChar(50)
+  description String?   @db.VarChar(255)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  users       users[]
+}
+
+model sections {
+  id          BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  section     String          @db.VarChar(100)
+  description String?         @db.VarChar(255)
+  status      sections_status @default(active)
+  created_at  DateTime?       @db.Timestamp(0)
+  updated_at  DateTime?       @db.Timestamp(0)
+  operators   operators[]
+}
+
+model sewing_factors {
+  id           BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  factor_name  String                @db.VarChar(100)
+  description  String?               @db.VarChar(255)
+  factor_value Decimal               @db.Decimal(10, 2)
+  code         String                @db.VarChar(50)
+  status       sewing_factors_status @default(active)
+  created_at   DateTime?             @db.Timestamp(0)
+  updated_at   DateTime?             @db.Timestamp(0)
+}
+
+model sewing_stop_factors {
+  id           BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  factor_name  String                     @db.VarChar(150)
+  description  String?                    @db.VarChar(255)
+  tolerance    String?                    @db.VarChar(100)
+  factor_value Decimal                    @db.Decimal(10, 2)
+  code         String                     @db.VarChar(50)
+  status       sewing_stop_factors_status @default(active)
+  created_at   DateTime?                  @db.Timestamp(0)
+  updated_at   DateTime?                  @db.Timestamp(0)
+}
+
+model shifts {
+  id          BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  shift       String        @db.VarChar(100)
+  description String?       @db.VarChar(255)
+  status      shifts_status @default(active)
+  created_at  DateTime?     @db.Timestamp(0)
+  updated_at  DateTime?     @db.Timestamp(0)
+}
+
+model skill_gradings {
+  id          BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  skill_grade String                @db.VarChar(100)
+  description String?               @db.VarChar(255)
+  status      skill_gradings_status @default(active)
+  created_at  DateTime?             @db.Timestamp(0)
+  updated_at  DateTime?             @db.Timestamp(0)
+}
+
+model spare_parts {
+  id          BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  spare_part  String             @db.VarChar(200)
+  description String?            @db.VarChar(255)
+  status      spare_parts_status @default(active)
+  created_at  DateTime?          @db.Timestamp(0)
+  updated_at  DateTime?          @db.Timestamp(0)
+}
+
+model status_pkwtt {
+  id          BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  pkwtt       String              @unique(map: "status_pkwtt_pkwtt_unique") @db.VarChar(100)
+  description String?             @db.VarChar(255)
+  status      status_pkwtt_status @default(active)
+  created_at  DateTime?           @db.Timestamp(0)
+  updated_at  DateTime?           @db.Timestamp(0)
+  operators   operators[]
+}
+
+model users {
+  id                     BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  role_id                BigInt                   @db.UnsignedBigInt
+  employee_number        String?                  @unique(map: "users_employee_number_unique") @db.VarChar(20)
+  name                   String                   @db.VarChar(255)
+  username               String?                  @unique(map: "users_username_unique") @db.VarChar(255)
+  email                  String?                  @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at      DateTime?                @db.Timestamp(0)
+  description            String?                  @db.Text
+  password               String                   @db.VarChar(255)
+  remember_token         String?                  @db.VarChar(100)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  activity_logs          activity_logs[]
+  line_balancing_reports line_balancing_reports[]
+  login_logs             login_logs[]
+  process_versions       process_versions[]
+  ptms_reports           ptms_reports[]
+  roles                  roles                    @relation(fields: [role_id], references: [id], map: "users_role_id_foreign")
+
+  @@index([role_id], map: "users_role_id_foreign")
+}
+
+enum components_panels_status {
+  active
+  inactive
+}
+
+enum destinations_status {
+  active
+  inactive
+}
+
+enum divisions_status {
+  active
+  inactive
+}
+
+enum educational_levels_status {
+  active
+  inactive
+}
+
+enum factories_status {
+  active
+  inactive
+}
+
+enum failure_modes_status {
+  active
+  inactive
+}
+
+enum genders_status {
+  active
+  inactive
+}
+
+enum gsd_categories_status {
+  active
+  inactive
+}
+
+enum login_logs_activity {
+  Login
+  Logout
+}
+
+enum machine_numbers_status {
+  active
+  inactive
+}
+
+enum machine_types_status {
+  active
+  inactive
+}
+
+enum processes_status {
+  active
+  inactive
+}
+
+enum production_roles_status {
+  active
+  inactive
+}
+
+enum sections_status {
+  active
+  inactive
+}
+
+enum shifts_status {
+  active
+  inactive
+}
+
+enum skill_gradings_status {
+  active
+  inactive
+}
+
+enum spare_parts_status {
+  active
+  inactive
+}
+
+enum status_pkwtt_status {
+  active
+  inactive
+}
+
+enum departments_status {
+  active
+  inactive
+}
+
+enum mechanics_status {
+  active
+  inactive
+}
+
+enum process_versions_status {
+  draft
+  active
+  archived
+}
+
+enum production_lines_status {
+  active
+  inactive
+}
+
+enum sewing_factors_status {
+  active
+  inactive
+}
+
+enum mtm_elements_status {
+  active
+  inactive
+}
+
+enum sewing_stop_factors_status {
+  active
+  inactive
+}
+
+enum articles_status {
+  active
+  inactive
+}
+
+enum gsd_elements_status {
+  active
+  inactive
+}
+
+enum line_balancing_reports_status {
+  active
+  inactive
+}
+
+enum operators_status {
+  active
+  inactive
+}
+
+enum ptms_reports_status {
+  draft
+  final
+  archived
+}

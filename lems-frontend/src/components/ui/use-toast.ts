@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
