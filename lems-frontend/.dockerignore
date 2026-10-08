@@ -4,6 +4,9 @@ node_modules
 .gitignore
 .env
 .env.local
+.env.example
 *.md
 .vscode
 npm-debug.log*
+Dockerfile
+.dockerignore
