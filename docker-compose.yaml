@@ -7,7 +7,6 @@ services:
       context: ./lems-frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
         - NEXT_PUBLIC_APP_NAME=${NEXT_PUBLIC_APP_NAME:-LEAN ENTERPRISE}
     container_name: kinglean2-app
     restart: unless-stopped

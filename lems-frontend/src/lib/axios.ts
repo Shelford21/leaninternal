@@ -2,9 +2,10 @@ import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
 
 const api = axios.create({
-  // Empty NEXT_PUBLIC_API_URL -> same-origin /api (Next.js route handlers).
-  // Set it back to "http://localhost:8000/api" to talk to the Laravel API.
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
+  // Always use /api — requests go through Next.js proxy (fallback rewrites
+  // in next.config.js) which forwards to LEAN_API_URL server-side. This
+  // avoids CORS because the browser never contacts the Laravel backend directly.
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

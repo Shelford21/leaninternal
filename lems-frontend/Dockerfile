@@ -12,8 +12,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Accept NEXT_PUBLIC_* build args (inlined at build time)
-ARG NEXT_PUBLIC_API_URL
+# Accept build args
 ARG NEXT_PUBLIC_APP_NAME=LEAN ENTERPRISE
 
 # Generate Prisma client
