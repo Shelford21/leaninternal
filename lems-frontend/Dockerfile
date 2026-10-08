@@ -2,7 +2,9 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps --no-audit --no-fund 2>&1 || \
+    (echo "npm ci failed, falling back to npm install..." && \
+     npm install --legacy-peer-deps --no-audit --no-fund 2>&1)
 
 # ── Stage 2: Build ────────────────────────────────────────
 FROM node:22-alpine AS builder
