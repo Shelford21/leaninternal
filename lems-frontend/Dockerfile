@@ -37,14 +37,26 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma files needed at runtime
+# Copy Prisma files needed at runtime (schema + CLI for db push on startup)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
+# Startup script: push schema then start Next.js
+COPY <<'EOF' /app/start.sh
+#!/bin/sh
+set -e
+echo "⏳ Running Prisma db push..."
+npx prisma db push --accept-data-loss || echo "⚠️  Prisma db push failed (may already exist)"
+echo "🚀 Starting Next.js server..."
+exec node server.js
+EOF
+RUN chmod +x /app/start.sh
 
 USER nextjs
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["/app/start.sh"]
