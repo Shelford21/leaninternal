@@ -7,7 +7,7 @@ const nextConfig = {
     // routes and would shadow app/api/[resource] route handlers. A `fallback`
     // rewrite only matches paths no Next.js route handler claimed, so Laravel
     // is reached solely for endpoints not (yet) implemented in Next.js.
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000';
+    const backendUrl = process.env.LEAN_API_URL || 'http://localhost:8000';
     return {
       fallback: [
         {
